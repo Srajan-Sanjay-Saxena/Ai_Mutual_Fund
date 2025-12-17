@@ -1,6 +1,6 @@
 
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client/extension";
+import { PrismaClient } from "@prisma/client";
 import { env } from "@repo/zod-schemas/environment/environments.z.js";
 
 const adapter = new PrismaPg({
