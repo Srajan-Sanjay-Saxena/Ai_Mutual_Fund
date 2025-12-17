@@ -1,16 +1,11 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { prisma } from '@repo/prisma/db';
+import type { RecommendationInput, FundWithProjection, AnalyticsData, FiltersData, MutualFund } from '@repo/zod-schemas/types/mutualFund.types';
+
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const indexName = process.env.PINECONE_INDEX_NAME || 'mutual-funds-index';
 
-export interface RecommendationInput {
-  amcName?: string;
-  category?: string;
-  amountInvested: number;
-  tenure: number;
-}
-
-export async function getRecommendations(input: RecommendationInput) {
+export async function getRecommendations(input: RecommendationInput): Promise<FundWithProjection[]> {
   const { amcName, category, amountInvested, tenure } = input;
 
   const query = `Looking for mutual fund${amcName ? ` from ${amcName}` : ''}${category ? ` in ${category} category` : ''} for investment of ${amountInvested} rupees for ${tenure} years tenure`;
@@ -28,8 +23,8 @@ export async function getRecommendations(input: RecommendationInput) {
     where: { id: { in: fundIds } },
   });
 
-  const rankedFunds = funds
-    .map((fund: any) => {
+  const rankedFunds: FundWithProjection[] = funds
+    .map((fund) => {
       const expectedReturn = tenure >= 5 && fund.returns5yr ? fund.returns5yr :
                             tenure >= 3 && fund.returns3yr ? fund.returns3yr :
                             fund.returns1yr || 0;
@@ -44,12 +39,12 @@ export async function getRecommendations(input: RecommendationInput) {
         score,
       };
     })
-    .sort((a: any, b: any) => b.score - a.score);
+    .sort((a, b) => b.score - a.score);
 
   return rankedFunds;
 }
 
-export async function getAnalytics() {
+export async function getAnalytics(): Promise<AnalyticsData> {
   const totalFunds = await prisma.mutualFund.count();
   
   const byCategory = await prisma.mutualFund.groupBy({
@@ -76,28 +71,30 @@ export async function getAnalytics() {
   };
 }
 
-export async function getFundDetails(fundId: string) {
+export async function getFundDetails(fundId: string): Promise<MutualFund | null> {
   return prisma.mutualFund.findUnique({ where: { id: fundId } });
 }
 
-export async function getFilters() {
-  const amcs = await prisma.mutualFund.findMany({
+export async function getFilters(): Promise<FiltersData> {
+  const amcs: { amcName: string }[] = await prisma.mutualFund.findMany({
     select: { amcName: true },
     distinct: ['amcName'],
     orderBy: { amcName: 'asc' },
   });
 
-  const categories = await prisma.mutualFund.findMany({
+  const categories: { category: string; subCategory: string }[] = await prisma.mutualFund.findMany({
     select: { category: true, subCategory: true },
     distinct: ['category', 'subCategory'],
     orderBy: { category: 'asc' },
   });
 
   return {
-    amcs: amcs.map((a: any) => a.amcName),
-    categories: categories.reduce((acc: any, c: any) => {
+    amcs: amcs.map((a) => a.amcName),
+    categories: categories.reduce((acc: Record<string, string[]>, c: { category: string; subCategory: string }) => {
       if (!acc[c.category]) acc[c.category] = [];
-      acc[c.category].push(c.subCategory);
+      if (c.subCategory && !acc[c.category]!.includes(c.subCategory)) {
+        acc[c.category]!.push(c.subCategory);
+      }
       return acc;
     }, {} as Record<string, string[]>),
   };
