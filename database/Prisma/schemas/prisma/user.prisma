@@ -1,0 +1,10 @@
+model User {
+  id                        String                      @id
+  email                     String                      @unique
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  firstName                 String
+  lastName                  String?
+  avatarURL                String?
+}
+
