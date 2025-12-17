@@ -443,7 +443,18 @@ We welcome contributions! Please follow these steps:
 
 ## 📝 License
 
-This project is licensed under the ISC License.
+This project is licensed under the MIT License with additional usage requirements.
+
+**⚠️ IMPORTANT USAGE REQUIREMENT:**
+Before using this code, you MUST email invinciblecoder071723@gmail.com with:
+- Your name/organization
+- Intended use case
+- Project description
+
+**🚫 Anti-Plagiarism Notice:**
+This software is protected against plagiarism. Unauthorized copying or claiming as your own work is prohibited. Proper attribution to "Invincible Coder" is required.
+
+See [LICENSE](./LICENSE) for full terms.
 
 ---
 
