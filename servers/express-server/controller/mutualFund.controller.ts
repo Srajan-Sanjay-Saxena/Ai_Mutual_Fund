@@ -1,53 +1,60 @@
 import { Request, Response } from 'express';
 import * as service from '@repo/ai-pinecone/service.js';
+import type { RecommendationInput } from '@repo/zod-schemas/types/mutualFund.types';
 
-export async function getRecommendations(req: Request, res: Response) {
+export async function getRecommendations(req: Request, res: Response): Promise<void> {
   try {
-    const { amcName, category, amountInvested, tenure } = req.body;
+    const { amcName, category, amountInvested, tenure }: RecommendationInput = req.body;
 
     if (!amountInvested || !tenure) {
-      return res.status(400).json({ error: 'amountInvested and tenure are required' });
+      res.status(400).json({ error: 'amountInvested and tenure are required' });
+      return;
     }
 
     const recommendations = await service.getRecommendations({
       amcName,
       category,
-      amountInvested: parseFloat(amountInvested),
-      tenure: parseFloat(tenure),
+      amountInvested: parseFloat(amountInvested.toString()),
+      tenure: parseFloat(tenure.toString()),
     });
 
     res.json({ success: true, data: recommendations });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
   }
 }
 
-export async function getAnalytics(req: Request, res: Response) {
+export async function getAnalytics(req: Request, res: Response): Promise<void> {
   try {
     const analytics = await service.getAnalytics();
     res.json({ success: true, data: analytics });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
   }
 }
 
-export async function getFundDetails(req: Request, res: Response) {
+export async function getFundDetails(req: Request, res: Response): Promise<void> {
   try {
     const fund = await service.getFundDetails(req.params.id!);
     if (!fund) {
-      return res.status(404).json({ error: 'Fund not found' });
+      res.status(404).json({ error: 'Fund not found' });
+      return;
     }
     res.json({ success: true, data: fund });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
   }
 }
 
-export async function getFilters(req: Request, res: Response) {
+export async function getFilters(req: Request, res: Response): Promise<void> {
   try {
     const filters = await service.getFilters();
     res.json({ success: true, data: filters });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
   }
 }
