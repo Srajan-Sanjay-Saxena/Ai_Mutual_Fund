@@ -48,47 +48,49 @@ An **AI-powered mutual fund recommendation system** that provides:
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer"
-        A[Next.js UI] --> B[React Components]
-        B --> C[Dashboard]
-        B --> D[Fund Explorer]
-        B --> E[Portfolio Manager]
+    subgraph Frontend["🎨 Frontend Layer"]
+        A[Next.js UI]
+        B[React Components]
+        C[Dashboard]
+        D[Fund Explorer]
+        E[Portfolio Manager]
     end
     
-    subgraph "API Layer"
-        F[Express Server] --> G[REST Endpoints]
-        G --> H[/recommendations]
-        G --> I[/analytics]
-        G --> J[/filters]
+    subgraph API["🔌 API Layer"]
+        F[Express Server]
+        G[REST Endpoints]
+        H[Recommendations]
+        I[Analytics]
+        J[Filters]
     end
     
-    subgraph "Service Layer"
-        K[AI Service] --> L[Recommendation Engine]
-        K --> M[Analytics Engine]
-        K --> N[Search Engine]
+    subgraph Service["🧠 Service Layer"]
+        K[AI Service]
+        L[Recommendation Engine]
+        M[Analytics Engine]
+        N[Search Engine]
     end
     
-    subgraph "Data Layer"
-        O[(PostgreSQL + Prisma)] --> P[Structured Data]
-        Q[(Pinecone Vector DB)] --> R[Embeddings]
+    subgraph Data["💾 Data Layer"]
+        O[(PostgreSQL)]
+        Q[(Pinecone)]
     end
     
-    subgraph "Data Source"
-        S[CSV Data] --> T[Seeder Script]
-    end
-    
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    F --> G
+    G --> H
+    G --> I
+    G --> J
+    K --> L
+    K --> M
+    K --> N
     A --> F
     F --> K
     K --> O
     K --> Q
-    T --> O
-    T --> Q
-    
-    style A fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
-    style F fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
-    style K fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
-    style O fill:#ec4899,stroke:#db2777,stroke-width:3px,color:#fff
-    style Q fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
 ```
 
 </div>
@@ -457,7 +459,7 @@ Built with ❤️ by passionate developers committed to democratizing wealth man
 
 ## 📞 Support
 
-For support, email support@aimutualfund.com or join our Slack channel.
+For support, email invinciblecoder071723@gmail.com
 
 ---
 
