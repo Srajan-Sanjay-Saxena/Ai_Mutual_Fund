@@ -239,7 +239,10 @@ export const generateEnhancedChartData = () => {
   }
   
   // Add connection point
-  data[historicalMonths.length - 1].predictedNAV = data[historicalMonths.length - 1].historicalNAV;
+  const lastHistoricalIndex = historicalMonths.length - 1;
+  if (data[lastHistoricalIndex]) {
+    data[lastHistoricalIndex].predictedNAV = data[lastHistoricalIndex].historicalNAV;
+  }
   
   return data;
 };

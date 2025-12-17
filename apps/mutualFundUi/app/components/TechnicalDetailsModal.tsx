@@ -62,7 +62,7 @@ export function TechnicalDetailsModal({
   ];
 
   return (
-    <Dialog open={isOpen} onValueChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-[#1A2332] border-gray-800 text-white">
         <DialogHeader>
           <DialogTitle className="text-white">Technical Details</DialogTitle>
