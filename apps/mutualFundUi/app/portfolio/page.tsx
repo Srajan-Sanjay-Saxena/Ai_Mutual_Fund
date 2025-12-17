@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { TrendingUp, Wallet, PieChart, Clock } from 'lucide-react';
 
