@@ -3,6 +3,7 @@ import { parse } from "csv-parse/sync";
 import { readFileSync } from "fs";
 import { prisma } from "@repo/prisma/db";
 import { env } from "@repo/zod-schemas/environment/environments.z.js";
+import type { CSVRecord, MutualFundData, PineconeIndex, PineconeMetadata } from "@repo/zod-schemas/types/mutualFund.types";
 
 const pc = new Pinecone({ apiKey: env.PINECONE_API_KEY! });
 
@@ -10,7 +11,7 @@ const indexName = env.PINECONE_INDEX_NAME || "mutual-funds-index";
 
 async function createIndex() {
   const existingIndexes = await pc.listIndexes();
-  if (!existingIndexes.indexes?.some((idx: any) => idx.name === indexName)) {
+  if (!existingIndexes.indexes?.some((idx: PineconeIndex) => idx.name === indexName)) {
     await pc.createIndex({
       name: indexName,
       dimension: 1536,
@@ -42,8 +43,8 @@ async function seedData() {
 
   console.log(`Processing ${records.length} mutual funds...`);
 
-  for (const record of records) {
-    const fundData = {
+  for (const record of records as CSVRecord[]) {
+    const fundData: MutualFundData = {
       schemeName: record.scheme_name,
       minSip: parseFloat(record.min_sip) || 0,
       minLumpsum: parseFloat(record.min_lumpsum) || 0,
@@ -87,7 +88,7 @@ async function seedData() {
           returns_5yr: fundData.returns5yr || 0,
           min_sip: fundData.minSip,
           min_lumpsum: fundData.minLumpsum,
-        },
+        } as Record<string, any>,
       },
     ]);
 
