@@ -106,6 +106,11 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
           <div className="flex gap-2 pt-2">
             <Button 
               className="flex-1 bg-[#00C853] hover:bg-[#00A843] text-white"
+              onClick={() => {
+                // Open investment modal or redirect to investment page
+                console.log('Investing in:', fund.schemeName);
+                alert(`Investment feature for ${fund.schemeName} will be implemented`);
+              }}
             >
               Invest Now
             </Button>

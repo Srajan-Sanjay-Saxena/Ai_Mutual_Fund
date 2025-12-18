@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Slider } from './ui/slider';
 import { Input } from './ui/input';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface InputSidebarProps {
   amcPreference: string;
@@ -16,6 +17,12 @@ interface InputSidebarProps {
   setInvestmentAmount: (value: number) => void;
   tenure: number;
   setTenure: (value: number) => void;
+  onGenerateRecommendations: () => void;
+  loading: boolean;
+  filters?: {
+    amcs: string[];
+    categories: Record<string, string[]>;
+  } | null;
 }
 
 export function InputSidebar({
@@ -29,6 +36,9 @@ export function InputSidebar({
   setInvestmentAmount,
   tenure,
   setTenure,
+  onGenerateRecommendations,
+  loading,
+  filters,
 }: InputSidebarProps) {
   return (
     <div className="w-80 bg-[#1A2332] border border-gray-800 rounded-lg h-fit overflow-y-auto p-6 space-y-6 sticky top-6">
@@ -46,14 +56,14 @@ export function InputSidebar({
             <SelectValue placeholder="Select AMC" />
           </SelectTrigger>
           <SelectContent className="bg-[#1A2332] border-gray-700">
-            <SelectItem value="all">All AMCs</SelectItem>
-            <SelectItem value="sbi">SBI Mutual Fund</SelectItem>
-            <SelectItem value="hdfc">HDFC Mutual Fund</SelectItem>
-            <SelectItem value="icici">ICICI Prudential</SelectItem>
-            <SelectItem value="axis">Axis Mutual Fund</SelectItem>
-            <SelectItem value="nippon">Nippon India MF</SelectItem>
-            <SelectItem value="kotak">Kotak Mutual Fund</SelectItem>
-            <SelectItem value="aditya-birla">Aditya Birla SL MF</SelectItem>
+            <SelectItem value="all" className="text-white">All AMCs</SelectItem>
+            {filters?.amcs ? (
+              filters.amcs.map((amc) => (
+                <SelectItem key={amc} value={amc} className="text-white">{amc}</SelectItem>
+              ))
+            ) : (
+              <SelectItem value="loading" disabled className="text-white">Loading AMCs...</SelectItem>
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -66,9 +76,15 @@ export function InputSidebar({
             <SelectValue placeholder="Select Category" />
           </SelectTrigger>
           <SelectContent className="bg-[#1A2332] border-gray-700">
-            <SelectItem value="equity" className="text-white">Equity</SelectItem>
-            <SelectItem value="debt" className="text-white">Debt</SelectItem>
-            <SelectItem value="hybrid" className="text-white">Hybrid</SelectItem>
+            {filters?.categories ? (
+              Object.keys(filters.categories).map((category) => (
+                <SelectItem key={category} value={category} className="text-white">
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="loading" disabled className="text-white">Loading categories...</SelectItem>
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -144,8 +160,13 @@ export function InputSidebar({
       </div>
 
       {/* Generate Button */}
-      <button className="w-full bg-[#FFAB00] hover:bg-[#FF9800] text-black py-3 px-4 rounded-lg transition-colors">
-        Generate AI Recommendations
+      <button 
+        onClick={onGenerateRecommendations}
+        disabled={loading}
+        className="w-full bg-[#FFAB00] hover:bg-[#FF9800] disabled:bg-gray-600 disabled:cursor-not-allowed text-black py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
+        {loading && <LoadingSpinner size="sm" />}
+        {loading ? 'Generating...' : 'Generate AI Recommendations'}
       </button>
     </div>
   );
