@@ -24,9 +24,12 @@ const createInterfacialEnvironment = (
         .regex(/^\d+$/, 'Port must be a number'),
       DATABASE_URL: z.string().min(10, 'Postgres Database URL is required'),
       BASE_API_ENDPOINT: z.string().min(10, 'Base API Endpoint is required'),
-      DATABASE_CA_CERT: z.string().min(10, 'Database CA Cert is required'),
       PINECONE_API_KEY: z.string().min(10, 'Pinecone API Key is required'),
       PINECONE_INDEX_NAME: z.string().min(3, 'Pinecone Index Name is required'),
+      OPENAI_API_KEY: z.string().optional(),
+      GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(10, 'Gemini API Key is required'),
+      AI_MODEL_PROVIDER: z.enum(['openai', 'gemini']).default('gemini'),
+      GEMINI_MODEL: z.string().default('text-embedding-004'),
     },
     clientPrefix: 'CLIENT',
     client: {

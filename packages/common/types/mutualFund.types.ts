@@ -56,6 +56,7 @@ export interface RecommendationInput {
   category?: string;
   amountInvested: number;
   tenure: number;
+  investmentType?: string;
 }
 
 export interface FundWithProjection {
