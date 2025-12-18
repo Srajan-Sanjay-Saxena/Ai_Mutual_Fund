@@ -49,6 +49,25 @@ export async function getFundDetails(req: Request, res: Response): Promise<void>
   }
 }
 
+export async function getAllFunds(req: Request, res: Response): Promise<void> {
+  try {
+    const { category, amcName, search, limit, offset } = req.query;
+    
+    const funds = await service.getAllFunds({
+      category: category as string,
+      amcName: amcName as string,
+      search: search as string,
+      limit: limit ? parseInt(limit as string) : undefined,
+      offset: offset ? parseInt(offset as string) : undefined,
+    });
+    
+    res.json({ success: true, data: funds });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
+  }
+}
+
 export async function getFilters(req: Request, res: Response): Promise<void> {
   try {
     const filters = await service.getFilters();

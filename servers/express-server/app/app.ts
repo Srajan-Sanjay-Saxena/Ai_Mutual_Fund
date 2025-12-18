@@ -19,6 +19,9 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(cors(corsOptions));
 
+console.log(`API Base Endpoint: ${env.BASE_API_ENDPOINT}`);
+console.log(`${env.BASE_API_ENDPOINT}/mutual-funds`);
+
 // API routes
 app.use(env.BASE_API_ENDPOINT, userRouter);
 app.use(`${env.BASE_API_ENDPOINT}/mutual-funds`, mutualFundRouter);
