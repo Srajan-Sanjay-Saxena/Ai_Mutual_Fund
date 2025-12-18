@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { env } from "@repo/zod-schemas/environment/environments.z.js";
 
 const adapter = new PrismaPg({
-  connectionString: (env.DATABASE_URL + env.DATABASE_CA_CERT)!,
+  connectionString: env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },

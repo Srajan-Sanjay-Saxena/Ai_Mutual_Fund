@@ -8,6 +8,6 @@ export default {
     path: path.join(__dirname, 'migrations'),
   },
   datasource: {
-    url: `${env.DATABASE_URL} + ${env.DATABASE_CA_CERT}`,
+    url: env.DATABASE_URL!,
   },
 } satisfies PrismaConfig;
