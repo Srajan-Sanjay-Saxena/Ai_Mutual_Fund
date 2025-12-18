@@ -1,30 +1,48 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { prisma } from '@repo/prisma/db';
-import type { RecommendationInput, FundWithProjection, AnalyticsData, FiltersData, MutualFund } from '@repo/zod-schemas/types/mutualFund.types';
+import { google } from '@ai-sdk/google';
+import { embed } from 'ai';
+import { env } from '@repo/zod-schemas/environment/environments.z.js';
+import type { AnalyticsData, FiltersData, FundWithProjection, MutualFund, RecommendationInput } from '@repo/zod-schemas/types/mutualFund.types';
 
-const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
-const indexName = process.env.PINECONE_INDEX_NAME || 'mutual-funds-index';
+const pc = new Pinecone({ apiKey: env.PINECONE_API_KEY });
+const indexName = env.PINECONE_INDEX_NAME || 'mutual-funds-index';
 
 export async function getRecommendations(input: RecommendationInput): Promise<FundWithProjection[]> {
-  const { amcName, category, amountInvested, tenure } = input;
+  const { amcName, category, amountInvested, tenure, investmentType } = input;
 
-  const query = `Looking for mutual fund${amcName ? ` from ${amcName}` : ''}${category ? ` in ${category} category` : ''} for investment of ${amountInvested} rupees for ${tenure} years tenure`;
+  let queryText = `${investmentType || 'SIP'} investment recommendation for ${amountInvested} rupees over ${tenure} years`;
+  
+  if (category) queryText += ` in ${category} category funds`;
+  if (amcName && amcName !== 'all') queryText += ` from ${amcName} asset management company`;
+
+  const result = await embed({
+    model: google.textEmbedding('text-embedding-004'),
+    value: queryText,
+  });
 
   const index = pc.index(indexName);
+  // Pad embedding to match Pinecone index dimension (1536)
+  const embedding = [...result.embedding, ...new Array(1536 - result.embedding.length).fill(0)];
+
   const results = await index.query({
-    vector: new Array(1536).fill(0),
+    vector: embedding,
     topK: 10,
     includeMetadata: true,
+    filter: {
+      ...(amcName && amcName !== 'all' && { amc_name: amcName }),
+      ...(category && { category: category }),
+    },
   });
 
   const fundIds = results.matches?.map(m => m.id) || [];
   
-  const funds = await prisma.mutualFund.findMany({
+  const funds: MutualFund[] = await prisma.mutualFund.findMany({
     where: { id: { in: fundIds } },
   });
 
-  const rankedFunds: FundWithProjection[] = funds
-    .map((fund) => {
+  const rankedFunds = funds
+    .map((fund: MutualFund) => {
       const expectedReturn = tenure >= 5 && fund.returns5yr ? fund.returns5yr :
                             tenure >= 3 && fund.returns3yr ? fund.returns3yr :
                             fund.returns1yr || 0;
@@ -39,7 +57,7 @@ export async function getRecommendations(input: RecommendationInput): Promise<Fu
         score,
       };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a: FundWithProjection, b: FundWithProjection) => b.score - a.score);
 
   return rankedFunds;
 }
@@ -71,6 +89,53 @@ export async function getAnalytics(): Promise<AnalyticsData> {
   };
 }
 
+export async function getAllFunds(filters?: {
+  category?: string;
+  amcName?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<FundWithProjection[]> {
+  const { category, amcName, search, limit = 50, offset = 0 } = filters || {};
+  
+  const whereClause: any = {};
+  
+  if (category) {
+    whereClause.category = { equals: category, mode: 'insensitive' };
+  }
+  
+  if (amcName) {
+    whereClause.amcName = { contains: amcName, mode: 'insensitive' };
+  }
+  
+  if (search) {
+    whereClause.OR = [
+      { schemeName: { contains: search, mode: 'insensitive' } },
+      { amcName: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+  
+  const funds = await prisma.mutualFund.findMany({
+    where: whereClause,
+    orderBy: [{ rating: 'desc' }, { returns5yr: 'desc' }],
+    take: limit,
+    skip: offset,
+  });
+  
+  return funds.map((fund) => {
+    const expectedReturn = fund.returns5yr || fund.returns3yr || fund.returns1yr || 0;
+    const projectedValue = 10000 * Math.pow(1 + expectedReturn / 100, 3);
+    const score = fund.rating * 25 + expectedReturn * 6 - fund.riskLevel * 3;
+    
+    return {
+      ...fund,
+      expectedReturn,
+      projectedValue: Math.round(projectedValue),
+      score: Math.round(score * 100) / 100,
+    };
+  });
+}
+
 export async function getFundDetails(fundId: string): Promise<MutualFund | null> {
   return prisma.mutualFund.findUnique({ where: { id: fundId } });
 }
@@ -89,12 +154,10 @@ export async function getFilters(): Promise<FiltersData> {
   });
 
   return {
-    amcs: amcs.map((a) => a.amcName),
+    amcs: amcs.map((a: { amcName: string }) => a.amcName),
     categories: categories.reduce((acc: Record<string, string[]>, c: { category: string; subCategory: string }) => {
       if (!acc[c.category]) acc[c.category] = [];
-      if (c.subCategory && !acc[c.category]!.includes(c.subCategory)) {
-        acc[c.category]!.push(c.subCategory);
-      }
+      acc[c.category]?.push(c.subCategory);
       return acc;
     }, {} as Record<string, string[]>),
   };

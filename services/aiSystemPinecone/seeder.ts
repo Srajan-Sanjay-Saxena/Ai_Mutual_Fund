@@ -3,7 +3,10 @@ import { parse } from "csv-parse/sync";
 import { readFileSync } from "fs";
 import { prisma } from "@repo/prisma/db";
 import { env } from "@repo/zod-schemas/environment/environments.z.js";
-import type { CSVRecord, MutualFundData, PineconeIndex, PineconeMetadata } from "@repo/zod-schemas/types/mutualFund.types";
+import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
+import { embed } from 'ai';
+import type { CSVRecord, MutualFundData, PineconeIndex } from "@repo/zod-schemas/types/mutualFund.types";
 
 const pc = new Pinecone({ apiKey: env.PINECONE_API_KEY! });
 
@@ -30,7 +33,7 @@ async function createIndex() {
 
 async function seedData() {
   const csvPath =
-    process.env.CSV_PATH || "/Users/srajansaxena/Desktop/MF_India_AI.csv";
+    env.CSV_PATH || "/Users/srajansaxena/Desktop/MF_India_AI.csv";
   const csvData = readFileSync(csvPath, "utf-8");
 
   const records = parse(csvData, {
@@ -71,10 +74,19 @@ async function seedData() {
 
     const textForEmbedding = `${fundData.schemeName}. AMC: ${fundData.amcName}. Category: ${fundData.category} - ${fundData.subCategory}. Risk Level: ${fundData.riskLevel}. Rating: ${fundData.rating} stars. Returns: 1yr=${fundData.returns1yr}%, 3yr=${fundData.returns3yr}%, 5yr=${fundData.returns5yr}%. Fund Manager: ${fundData.fundManager}. Expense Ratio: ${fundData.expenseRatio}%. Fund Size: ${fundData.fundSizeCr} Cr.`;
 
+    // Generate semantic embedding from fund description
+    const modelProvider = env.AI_MODEL_PROVIDER || 'gemini';
+    const { embedding } = await embed({
+      model: modelProvider === 'gemini' 
+        ? google.textEmbedding(env.GEMINI_MODEL || 'text-embedding-004')
+        : openai.embedding('text-embedding-3-small'),
+      value: textForEmbedding,
+    });
+
     await index.upsert([
       {
         id: fund.id,
-        values: new Array(1536).fill(0),
+        values: embedding,
         metadata: {
           text: textForEmbedding,
           scheme_name: fundData.schemeName,
