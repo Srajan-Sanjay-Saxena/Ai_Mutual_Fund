@@ -1,10 +1,13 @@
-import { Router, type IRouter } from 'express';
-import * as controller from '../controller/mutualFund.controller.js';
+import { Router, type IRouter } from "express";
+import * as controller from "../controller/mutualFund.controller.js";
+import { verifyUserAuth } from "controller/user.controller.js";
 
+const mutualFundRouter: IRouter = Router();
+mutualFundRouter.use(verifyUserAuth);
+mutualFundRouter.post("/recommendations", controller.getRecommendations);
+mutualFundRouter.get("/analytics", controller.getAnalytics);
+mutualFundRouter.get("/filters", controller.getFilters);
+mutualFundRouter.get("/all", controller.getAllFunds);
+mutualFundRouter.get("/:id", controller.getFundDetails);
 
-
-export const mutualFundRoutes = new Map<string, string>();
-mutualFundRoutes.set('mutualFund/recommendations' , 'mutualFund/recommendations');
-mutualFundRoutes.set("mutualFund/analytics" , "mutualFund/analytics");
-mutualFundRoutes.set("mutualFund/filters" , "mutualFund/filters");
-mutualFundRoutes.set("mutualFund/:id" , "mutualFund/:id");
+export { mutualFundRouter };

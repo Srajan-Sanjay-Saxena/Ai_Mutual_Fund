@@ -53,7 +53,7 @@ export async function getAllFunds(req: Request, res: Response): Promise<void> {
   try {
     const { category, amcName, search, limit, offset } = req.query;
     
-    const funds = await service.getAllFunds({
+    const result = await service.getAllFunds({
       category: category as string,
       amcName: amcName as string,
       search: search as string,
@@ -61,7 +61,7 @@ export async function getAllFunds(req: Request, res: Response): Promise<void> {
       offset: offset ? parseInt(offset as string) : undefined,
     });
     
-    res.json({ success: true, data: funds });
+    res.json({ success: true, data: result.funds, totalCount: result.totalCount });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ error: errorMessage });

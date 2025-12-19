@@ -1,18 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mutualFundAPI, type RecommendationRequest, type FundRecommendation, type AnalyticsData, type FiltersData } from '../lib/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { mutualFundAPI, type RecommendationRequest, type FundRecommendation } from "../lib/api";
+
+
 
 export const useRecommendations = () => {
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation({
-    mutationFn: (request: RecommendationRequest) => mutualFundAPI.getRecommendations(request),
+    mutationFn: mutualFundAPI.getRecommendations,
     onSuccess: (data) => {
-      queryClient.setQueryData(['recommendations'], data);
+      queryClient.setQueryData(["recommendations"], data);
     },
   });
 
   const query = useQuery<FundRecommendation[]>({
-    queryKey: ['recommendations'],
+    queryKey: ["recommendations"],
     queryFn: () => Promise.resolve([]),
     enabled: false,
   });
@@ -25,10 +27,13 @@ export const useRecommendations = () => {
   };
 };
 
-export const useAnalytics = () => {
+export const useAnalytics = (enabled = false) => {
   const query = useQuery({
-    queryKey: ['analytics'],
+    queryKey: ["analytics"],
     queryFn: mutualFundAPI.getAnalytics,
+    enabled,
+    staleTime: 10 * 60 * 1000, // 10 minutes - analytics don't change often
+    gcTime: 30 * 60 * 1000, // 30 minutes
   });
 
   return {
@@ -39,10 +44,13 @@ export const useAnalytics = () => {
   };
 };
 
-export const useFilters = () => {
+export const useFilters = (enabled = false) => {
   const query = useQuery({
-    queryKey: ['filters'],
+    queryKey: ["filters"],
     queryFn: mutualFundAPI.getFilters,
+    enabled,
+    staleTime: 15 * 60 * 1000, // 15 minutes - filters rarely change
+    gcTime: 60 * 60 * 1000, // 1 hour
   });
 
   return {
@@ -55,7 +63,7 @@ export const useFilters = () => {
 
 export const useFundDetails = (fundId: string) => {
   const query = useQuery({
-    queryKey: ['fund', fundId],
+    queryKey: ["fund", fundId],
     queryFn: () => mutualFundAPI.getFundDetails(fundId),
     enabled: !!fundId,
   });

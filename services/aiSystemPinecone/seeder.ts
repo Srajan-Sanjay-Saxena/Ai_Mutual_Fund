@@ -14,21 +14,29 @@ const indexName = env.PINECONE_INDEX_NAME || "mutual-funds-index";
 
 async function createIndex() {
   const existingIndexes = await pc.listIndexes();
-  if (!existingIndexes.indexes?.some((idx: PineconeIndex) => idx.name === indexName)) {
-    await pc.createIndex({
-      name: indexName,
-      dimension: 1536,
-      metric: "cosine",
-      spec: {
-        serverless: {
-          cloud: "aws",
-          region: "us-east-1",
-        },
-      },
-    });
-    console.log("Index created, waiting for initialization...");
-    await new Promise((resolve) => setTimeout(resolve, 60000));
+  const existingIndex = existingIndexes.indexes?.find((idx: PineconeIndex) => idx.name === indexName);
+  
+  if (existingIndex) {
+    console.log("Deleting existing index...");
+    await pc.deleteIndex(indexName);
+    console.log("Waiting for index deletion...");
+    await new Promise((resolve) => setTimeout(resolve, 30000));
   }
+  
+  console.log("Creating new index with dimension 768...");
+  await pc.createIndex({
+    name: indexName,
+    dimension: 768,
+    metric: "cosine",
+    spec: {
+      serverless: {
+        cloud: "aws",
+        region: "us-east-1",
+      },
+    },
+  });
+  console.log("Index created, waiting for initialization...");
+  await new Promise((resolve) => setTimeout(resolve, 60000));
 }
 
 async function seedData() {
@@ -41,7 +49,7 @@ async function seedData() {
     skip_empty_lines: true,
   });
 
-  await createIndex();
+  // await createIndex();
   const index = pc.index(indexName);
 
   console.log(`Processing ${records.length} mutual funds...`);
@@ -75,11 +83,8 @@ async function seedData() {
     const textForEmbedding = `${fundData.schemeName}. AMC: ${fundData.amcName}. Category: ${fundData.category} - ${fundData.subCategory}. Risk Level: ${fundData.riskLevel}. Rating: ${fundData.rating} stars. Returns: 1yr=${fundData.returns1yr}%, 3yr=${fundData.returns3yr}%, 5yr=${fundData.returns5yr}%. Fund Manager: ${fundData.fundManager}. Expense Ratio: ${fundData.expenseRatio}%. Fund Size: ${fundData.fundSizeCr} Cr.`;
 
     // Generate semantic embedding from fund description
-    const modelProvider = env.AI_MODEL_PROVIDER || 'gemini';
     const { embedding } = await embed({
-      model: modelProvider === 'gemini' 
-        ? google.textEmbedding(env.GEMINI_MODEL || 'text-embedding-004')
-        : openai.embedding('text-embedding-3-small'),
+      model: google.textEmbedding('text-embedding-004'),
       value: textForEmbedding,
     });
 

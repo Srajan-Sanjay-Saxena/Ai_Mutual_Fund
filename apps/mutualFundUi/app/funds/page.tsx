@@ -1,6 +1,7 @@
 'use client'
 
 import { Search, SlidersHorizontal } from 'lucide-react';
+import { ProtectedPage } from '../components/ProtectedPage';
 import { useMemo, useState } from 'react';
 import { EnhancedFundCard } from '../components/EnhancedFundCard';
 import { Button } from '../components/ui/button';
@@ -143,7 +144,8 @@ export default function Funds() {
   }
 
   return (
-    <div className="space-y-6">
+    <ProtectedPage>
+      <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl text-white mb-2">AI-Recommended Funds for Your Profile</h1>
@@ -244,5 +246,6 @@ export default function Funds() {
         </div>
       )}
     </div>
+    </ProtectedPage>
   );
 }

@@ -95,7 +95,7 @@ export async function getAllFunds(filters?: {
   search?: string;
   limit?: number;
   offset?: number;
-}): Promise<FundWithProjection[]> {
+}): Promise<{ funds: FundWithProjection[]; totalCount: number }> {
   const { category, amcName, search, limit = 50, offset = 0 } = filters || {};
   
   const whereClause: any = {};
@@ -115,14 +115,17 @@ export async function getAllFunds(filters?: {
     ];
   }
   
-  const funds = await prisma.mutualFund.findMany({
-    where: whereClause,
-    orderBy: [{ rating: 'desc' }, { returns5yr: 'desc' }],
-    take: limit,
-    skip: offset,
-  });
+  const [funds, totalCount] = await Promise.all([
+    prisma.mutualFund.findMany({
+      where: whereClause,
+      orderBy: [{ rating: 'desc' }, { returns5yr: 'desc' }],
+      take: limit,
+      skip: offset,
+    }),
+    prisma.mutualFund.count({ where: whereClause })
+  ]);
   
-  return funds.map((fund) => {
+  const processedFunds = funds.map((fund) => {
     const expectedReturn = fund.returns5yr || fund.returns3yr || fund.returns1yr || 0;
     const projectedValue = 10000 * Math.pow(1 + expectedReturn / 100, 3);
     const score = fund.rating * 25 + expectedReturn * 6 - fund.riskLevel * 3;
@@ -134,6 +137,8 @@ export async function getAllFunds(filters?: {
       score: Math.round(score * 100) / 100,
     };
   });
+  
+  return { funds: processedFunds, totalCount };
 }
 
 export async function getFundDetails(fundId: string): Promise<MutualFund | null> {

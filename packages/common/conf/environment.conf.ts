@@ -30,6 +30,7 @@ const createInterfacialEnvironment = (
       GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(10, 'Gemini API Key is required'),
       AI_MODEL_PROVIDER: z.enum(['openai', 'gemini']).default('gemini'),
       GEMINI_MODEL: z.string().default('text-embedding-004'),
+      JWT_SECRET: z.string().min(10, 'JWT Secret is required'),
     },
     clientPrefix: 'CLIENT',
     client: {

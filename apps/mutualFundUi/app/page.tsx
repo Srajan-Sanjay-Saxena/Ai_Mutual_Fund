@@ -7,18 +7,19 @@ import { InputSidebar } from './components/InputSidebar';
 import { useRecommendations, useAnalytics, useFilters } from './hooks/useMutualFunds';
 import { LoadingSpinner, LoadingStats } from './components/LoadingSpinner';
 import { ErrorState } from './components/ErrorBoundary';
+import { ProtectedPage } from './components/ProtectedPage';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Wallet, Target } from 'lucide-react';
 
 export default function Dashboard() {
   const [amcPreference, setAmcPreference] = useState('all');
-  const [assetCategory, setAssetCategory] = useState('equity');
+  const [assetCategory, setAssetCategory] = useState('Equity');
   const [investmentType, setInvestmentType] = useState('sip');
   const [investmentAmount, setInvestmentAmount] = useState(5000);
   const [tenure, setTenure] = useState(5);
 
   const { recommendations, loading: recLoading, error: recError, fetchRecommendations } = useRecommendations();
-  const { analytics, loading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useAnalytics();
-  const { filters, loading: filtersLoading, error: filtersError, refetch: refetchFilters } = useFilters();
+  const { analytics, loading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useAnalytics(false);
+  const { filters, loading: filtersLoading, error: filtersError, refetch: refetchFilters } = useFilters(true);
 
   const chartData = useMemo(() => {
     const months = ['Jan 23', 'Apr 23', 'Jul 23', 'Oct 23', 'Jan 24', 'Apr 24', 'Jul 24', 'Oct 24', 'Dec 24', 'Mar 25', 'Jun 25', 'Sep 25', 'Dec 25'];
@@ -148,7 +149,8 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex gap-6">
+    <ProtectedPage>
+      <div className="flex gap-6">
       {/* Left Sidebar */}
       <div className="flex-shrink-0">
         <InputSidebar
@@ -164,6 +166,7 @@ export default function Dashboard() {
           setTenure={setTenure}
           onGenerateRecommendations={handleGenerateRecommendations}
           loading={recLoading}
+          filtersLoading={filtersLoading}
           filters={filters}
         />
       </div>
@@ -178,40 +181,39 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Cards */}
-        {analyticsLoading ? (
-          <LoadingStats />
-        ) : analyticsError ? (
-          <ErrorState
-            title="Analytics Error"
-            message={analyticsError}
-            onRetry={refetchAnalytics}
-          />
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className={`${stat.bgColor} border border-gray-800 rounded-lg p-5`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <stat.icon className={`size-8 ${stat.color}`} />
-                  <div className="flex items-center gap-1 text-sm">
-                    {stat.isPositive ? (
-                      <ArrowUpRight className="size-4 text-[#00C853]" />
-                    ) : (
-                      <ArrowDownRight className="size-4 text-red-500" />
-                    )}
-                    <span className={stat.isPositive ? 'text-[#00C853]' : 'text-red-500'}>
-                      {stat.change}
-                    </span>
-                  </div>
+        <div className="grid grid-cols-3 gap-4">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className={`${stat.bgColor} border border-gray-800 rounded-lg p-5`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <stat.icon className={`size-8 ${stat.color}`} />
+                <div className="flex items-center gap-1 text-sm">
+                  {stat.isPositive ? (
+                    <ArrowUpRight className="size-4 text-[#00C853]" />
+                  ) : (
+                    <ArrowDownRight className="size-4 text-red-500" />
+                  )}
+                  <span className={stat.isPositive ? 'text-[#00C853]' : 'text-red-500'}>
+                    {stat.change}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-400 mb-1">{stat.label}</div>
-                <div className={`text-2xl ${stat.color}`}>{stat.value}</div>
               </div>
-            ))}
-          </div>
-        )}
+              <div className="text-sm text-gray-400 mb-1">{stat.label}</div>
+              <div className={`text-2xl ${stat.color} flex items-center gap-2`}>
+                {recLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" />
+                    <span className="text-lg">Loading...</span>
+                  </>
+                ) : (
+                  stat.value
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Chart */}
         <div className="bg-[#1A2332] rounded-lg border border-gray-800 overflow-hidden">
@@ -279,6 +281,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </ProtectedPage>
   );
 }
 

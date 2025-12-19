@@ -5,7 +5,8 @@ export default [
   ...nextJsConfig,
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-implicit-any": "off"
     }
   }
 ];

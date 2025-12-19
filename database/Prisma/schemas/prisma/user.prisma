@@ -6,5 +6,19 @@ model User {
   firstName                 String
   lastName                  String?
   avatarURL                String?
+  
+  // Trading relations
+  holdings                  Holding[]
+  positions                 Position[]
+  orders                    Order[]
+  watchlists                Watchlist[]
+  tradingAccount            TradingAccount?
+  
+  // Wallet relations
+  wallet                    Wallet?
+  transactions              Transaction[]
+  
+  // Investment relations
+  investments               Investment[]
 }
 

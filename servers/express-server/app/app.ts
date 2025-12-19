@@ -7,8 +7,11 @@ import { env } from '@repo/zod-schemas/environment/environments.z.js';
 import { globalErrorHandler } from 'controller/error/error.master.controller.js';
 import cors from 'cors';
 import { corsOptions } from '@constants/cors.options.js';
-import { userRouter } from 'api/user.api.js';
-import { mutualFundRouter } from 'api/mutualFund.api.js';
+
+import tradingRouter from 'routes/trading.routes.js';
+import walletRouter from 'routes/wallet.routes.js';
+import { mutualFundRouter } from 'routes/mutualFund.routes.js';
+import { userRouter } from 'routes/user.route.js';
 
 const app: Application = express();
 
@@ -25,6 +28,8 @@ console.log(`${env.BASE_API_ENDPOINT}/mutual-funds`);
 // API routes
 app.use(env.BASE_API_ENDPOINT, userRouter);
 app.use(`${env.BASE_API_ENDPOINT}/mutual-funds`, mutualFundRouter);
+app.use(`${env.BASE_API_ENDPOINT}/trading`, tradingRouter);
+app.use(`${env.BASE_API_ENDPOINT}/wallet`, walletRouter);
 app.get('/test', (_req, res) => {
   res.status(200).json({
     status: 'success',

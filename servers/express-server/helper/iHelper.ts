@@ -14,4 +14,7 @@ export type ResData =
 
 export interface ModifiedRequest extends Request {
   app: Application;
+  user : {
+    id: string,
+  }
 }

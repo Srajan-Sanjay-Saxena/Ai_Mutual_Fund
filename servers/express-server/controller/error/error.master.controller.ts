@@ -72,6 +72,7 @@ export const globalErrorHandler = <TObj extends ResData>(
   next: NextFunction
 ) => {
   console.log('finally reached the master controller', err);
+  console.log('stack', err.stack);
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Some internal server error occurred.';
 

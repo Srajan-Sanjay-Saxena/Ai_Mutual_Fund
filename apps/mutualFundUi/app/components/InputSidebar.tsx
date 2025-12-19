@@ -19,6 +19,7 @@ interface InputSidebarProps {
   setTenure: (value: number) => void;
   onGenerateRecommendations: () => void;
   loading: boolean;
+  filtersLoading?: boolean;
   filters?: {
     amcs: string[];
     categories: Record<string, string[]>;
@@ -38,6 +39,7 @@ export function InputSidebar({
   setTenure,
   onGenerateRecommendations,
   loading,
+  filtersLoading,
   filters,
 }: InputSidebarProps) {
   return (
@@ -53,16 +55,25 @@ export function InputSidebar({
         <Label htmlFor="amc-preference" className="text-gray-300 uppercase text-xs">AMC Preference</Label>
         <Select value={amcPreference} onValueChange={setAmcPreference}>
           <SelectTrigger id="amc-preference" className="bg-[#0F1419] border-gray-700 text-white">
-            <SelectValue placeholder="Select AMC" />
+            {filtersLoading ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner size="sm" />
+                <span>Loading AMCs...</span>
+              </div>
+            ) : (
+              <SelectValue placeholder="Select AMC" />
+            )}
           </SelectTrigger>
           <SelectContent className="bg-[#1A2332] border-gray-700">
             <SelectItem value="all" className="text-white">All AMCs</SelectItem>
-            {filters?.amcs ? (
+            {filtersLoading ? (
+              <SelectItem value="loading" disabled className="text-white">Loading AMCs...</SelectItem>
+            ) : filters?.amcs ? (
               filters.amcs.map((amc) => (
                 <SelectItem key={amc} value={amc} className="text-white">{amc}</SelectItem>
               ))
             ) : (
-              <SelectItem value="loading" disabled className="text-white">Loading AMCs...</SelectItem>
+              <SelectItem value="no-data" disabled className="text-white">No AMCs available</SelectItem>
             )}
           </SelectContent>
         </Select>
@@ -73,17 +84,26 @@ export function InputSidebar({
         <Label htmlFor="asset-category" className="text-gray-300 uppercase text-xs">Asset Category</Label>
         <Select value={assetCategory} onValueChange={setAssetCategory}>
           <SelectTrigger id="asset-category" className="bg-[#0F1419] border-gray-700 text-white">
-            <SelectValue placeholder="Select Category" />
+            {filtersLoading ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner size="sm" />
+                <span>Loading categories...</span>
+              </div>
+            ) : (
+              <SelectValue placeholder="Select Category" />
+            )}
           </SelectTrigger>
           <SelectContent className="bg-[#1A2332] border-gray-700">
-            {filters?.categories ? (
+            {filtersLoading ? (
+              <SelectItem value="loading" disabled className="text-white">Loading categories...</SelectItem>
+            ) : filters?.categories ? (
               Object.keys(filters.categories).map((category) => (
                 <SelectItem key={category} value={category} className="text-white">
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </SelectItem>
               ))
             ) : (
-              <SelectItem value="loading" disabled className="text-white">Loading categories...</SelectItem>
+              <SelectItem value="no-data" disabled className="text-white">No categories available</SelectItem>
             )}
           </SelectContent>
         </Select>

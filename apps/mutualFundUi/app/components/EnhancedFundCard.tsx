@@ -3,6 +3,7 @@ import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Riskometer } from './Riskometer';
 import { TechnicalDetailsModal } from './TechnicalDetailsModal';
+import { BuySellModal } from './BuySellModal';
 import { Star, Sparkles, TrendingUp, Info } from 'lucide-react';
 import { FundData } from './FundCard';
 
@@ -16,6 +17,7 @@ interface EnhancedFundCardProps {
 
 export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
+  const [showBuySellModal, setShowBuySellModal] = useState(false);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
@@ -105,22 +107,11 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button 
-              className="flex-1 bg-[#00C853] hover:bg-[#00A843] text-white"
-              onClick={() => {
-                // Open investment modal or redirect to investment page
-                console.log('Investing in:', fund.schemeName);
-                alert(`Investment feature for ${fund.schemeName} will be implemented`);
-              }}
-            >
-              Invest Now
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="border-gray-700 hover:bg-gray-800 hover:border-[#FFAB00] text-gray-300"
+              className="flex-1 bg-[#FFAB00] hover:bg-[#FF9800] text-black"
               onClick={() => setShowTechnicalDetails(true)}
             >
-              <Info className="size-4" />
+              <Info className="size-4 mr-2" />
+              View Details
             </Button>
           </div>
 
@@ -140,6 +131,16 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
         onClose={() => setShowTechnicalDetails(false)}
         fundName={fund.schemeName}
         technicalData={fund.technicalData}
+      />
+      
+      <BuySellModal
+        isOpen={showBuySellModal}
+        onClose={() => setShowBuySellModal(false)}
+        fund={{
+          id: fund.id,
+          schemeName: fund.schemeName,
+          minSip: fund.minSIP,
+        }}
       />
     </>
   );
