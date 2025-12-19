@@ -97,6 +97,9 @@ graph TB
 
 ---
 
+## System Design
+<img width="1430" height="541" alt="image" src="https://github.com/user-attachments/assets/cb171a38-a8b1-42b5-992a-2edfd6d5a137" />
+
 ## ✨ Key Features
 
 <table>
