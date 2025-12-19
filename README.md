@@ -132,11 +132,31 @@ graph TB
 </td>
 <td width="50%">
 
-### 💰 Projection Engine
-- Future value calculations
-- Tenure-based return estimates
-- SIP vs Lumpsum comparisons
-- Goal-based planning
+### 💰 Trading & Portfolio
+- Buy/Sell mutual funds
+- Portfolio tracking & analytics
+- Holdings management
+- Real-time P&L calculations
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🔐 Authentication & Security
+- NextAuth.js integration
+- Google OAuth login
+- JWT-based session management
+- Secure API endpoints
+
+</td>
+<td width="50%">
+
+### 💳 Wallet Management
+- Add/withdraw funds
+- Transaction history
+- Real-time balance updates
+- Payment gateway integration
 
 </td>
 </tr>
@@ -154,8 +174,10 @@ graph TB
 | **Backend** | Express.js + TypeScript | RESTful API, type safety |
 | **Database** | PostgreSQL + Prisma | Structured data storage, ORM |
 | **Vector DB** | Pinecone | Semantic search, embeddings |
+| **Authentication** | NextAuth.js | OAuth, JWT sessions |
+| **State Management** | TanStack Query | Server state, caching |
 | **Monorepo** | Turborepo + pnpm | Build optimization, workspace management |
-| **Styling** | Tailwind CSS | Utility-first styling |
+| **Styling** | Tailwind CSS + shadcn/ui | Utility-first styling, component library |
 | **Validation** | Zod | Runtime type validation |
 
 </div>
@@ -236,16 +258,24 @@ cp packages/common/secrets/.env.example packages/common/secrets/.env.local
 ```env
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/mutual_funds"
-DATABASE_CA_CERT=""
 
-# Pinecone
+# Pinecone Vector DB
 PINECONE_API_KEY="your_pinecone_api_key"
 PINECONE_INDEX_NAME="mutual-funds-index"
 
-# Server
+# Server Configuration
 HTTP_SERVER_PORT=8080
 BASE_API_ENDPOINT="/api/v1/ai-mutual-fund-system"
 CLIENT_ORIGIN="http://localhost:3000"
+
+# NextAuth Configuration
+NEXTAUTH_SECRET="your_nextauth_secret"
+NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your_google_client_id"
+GOOGLE_CLIENT_SECRET="your_google_client_secret"
+
+# Frontend
+NEXT_PUBLIC_API_URL="http://localhost:8080"
 ```
 
 ### Database Setup
@@ -322,59 +352,61 @@ sequenceDiagram
 
 ## 🎯 API Endpoints
 
-### 🔍 Get Recommendations
+### 🔍 Mutual Funds
 
 ```http
+# Get AI Recommendations
 POST /api/v1/ai-mutual-fund-system/mutual-funds/recommendations
-Content-Type: application/json
 
-{
-  "amcName": "Aditya Birla Sun Life Mutual Fund",
-  "category": "Hybrid",
-  "amountInvested": 100000,
-  "tenure": 5
-}
-```
+# Get All Funds (Paginated)
+GET /api/v1/ai-mutual-fund-system/mutual-funds/all?page=1&limit=10&search=
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "clx123...",
-      "schemeName": "ABSL Hybrid Fund",
-      "amcName": "Aditya Birla Sun Life Mutual Fund",
-      "category": "Hybrid",
-      "rating": 4,
-      "riskLevel": 5,
-      "returns1yr": 12.5,
-      "returns3yr": 15.2,
-      "returns5yr": 14.8,
-      "expectedReturn": 14.8,
-      "projectedValue": 196715,
-      "score": 134.0
-    }
-  ]
-}
-```
-
-### 📊 Get Analytics
-
-```http
+# Get Analytics
 GET /api/v1/ai-mutual-fund-system/mutual-funds/analytics
-```
 
-### 🎛️ Get Filters
-
-```http
+# Get Filters
 GET /api/v1/ai-mutual-fund-system/mutual-funds/filters
+
+# Get Fund Details
+GET /api/v1/ai-mutual-fund-system/mutual-funds/:id
 ```
 
-### 📄 Get Fund Details
+### 💼 Trading & Portfolio
 
 ```http
-GET /api/v1/ai-mutual-fund-system/mutual-funds/:id
+# Place Order (Buy/Sell)
+POST /api/v1/ai-mutual-fund-system/trading/orders
+
+# Get Holdings
+GET /api/v1/ai-mutual-fund-system/trading/holdings
+
+# Get Orders History
+GET /api/v1/ai-mutual-fund-system/trading/orders
+
+# Watchlist Management
+GET /api/v1/ai-mutual-fund-system/trading/watchlist
+POST /api/v1/ai-mutual-fund-system/trading/watchlist
+DELETE /api/v1/ai-mutual-fund-system/trading/watchlist/:id
+```
+
+### 💳 Wallet Management
+
+```http
+# Get Balance
+GET /api/v1/ai-mutual-fund-system/wallet/balance
+
+# Add Funds
+POST /api/v1/ai-mutual-fund-system/wallet/add-funds
+
+# Get Transactions
+GET /api/v1/ai-mutual-fund-system/wallet/transactions
+```
+
+### 🔐 Authentication
+
+```http
+# User Authentication
+POST /api/v1/ai-mutual-fund-system/user/auth
 ```
 
 ---
@@ -414,18 +446,32 @@ projectedValue = amountInvested × (1 + expectedReturn/100)^tenure
 
 ## 🎨 Features Roadmap
 
-- [x] AI-powered recommendations
+### ✅ Completed Features
+- [x] AI-powered recommendations with Pinecone
 - [x] Real-time analytics dashboard
-- [x] Semantic search
+- [x] Semantic search & filtering
 - [x] Fund filtering and sorting
-- [ ] User authentication
-- [ ] Portfolio tracking
-- [ ] SIP calculator
+- [x] User authentication (NextAuth + Google OAuth)
+- [x] Portfolio tracking & analytics
+- [x] Trading system (Buy/Sell orders)
+- [x] Wallet management
+- [x] Holdings & P&L tracking
+- [x] Responsive UI with dark theme
+- [x] Real-time data updates
+
+### 🚧 In Progress
+- [ ] SIP automation
 - [ ] Goal-based planning
 - [ ] Performance alerts
-- [ ] Comparison tool
+- [ ] Fund comparison tool
+
+### 📋 Planned Features
 - [ ] Historical backtesting
-- [ ] Mobile app
+- [ ] Mobile app (React Native)
+- [ ] Advanced charting
+- [ ] Tax optimization
+- [ ] Risk assessment tools
+- [ ] Social trading features
 
 ---
 
