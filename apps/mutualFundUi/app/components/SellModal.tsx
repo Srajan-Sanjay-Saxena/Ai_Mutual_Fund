@@ -28,18 +28,11 @@ export function SellModal({ isOpen, onClose, order }: SellModalProps) {
     }, {
       onSuccess: (data) => {
         console.log('Sell order success:', data);
-        if (data?.success) {
-          toast.success('Sell order placed successfully!', {
-            description: `${quantity} units of ${order.symbol} sold`,
-            duration: 3000,
-          });
-          onClose();
-        } else {
-          toast.error('Failed to place sell order', {
-            description: data?.error || 'Please try again later',
-            duration: 3000,
-          });
-        }
+        toast.success('Sell order placed successfully!', {
+          description: `${quantity} units of ${order.symbol} sold`,
+          duration: 3000,
+        });
+        onClose();
       },
       onError: (error) => {
         console.error('Sell order error:', error);

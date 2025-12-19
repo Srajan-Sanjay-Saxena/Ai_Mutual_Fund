@@ -126,10 +126,11 @@ export const usePlaceOrder = () => {
 
   return useMutation({
     mutationFn: tradingAPI.placeOrder,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["holdings"] });
       queryClient.invalidateQueries({ queryKey: ["wallet"] });
+      return data;
     },
   });
 };
