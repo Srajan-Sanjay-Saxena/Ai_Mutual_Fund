@@ -62,9 +62,9 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl text-[#00C853]">
-                +{fund.threeYearCAGR.toFixed(1)}%
+                +{(fund.threeYearCAGR || 0).toFixed(1)}%
               </span>
-              <span className="text-xs text-gray-400">₹10K → ₹{(10000 * Math.pow(1 + fund.threeYearCAGR/100, 3)).toFixed(0)}</span>
+              <span className="text-xs text-gray-400">₹10K → ₹{(10000 * Math.pow(1 + (fund.threeYearCAGR || 0)/100, 3)).toFixed(0)}</span>
             </div>
           </div>
 
@@ -80,7 +80,7 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
                 <span className="text-sm text-gray-300">AI FORECAST (1Y)</span>
               </div>
               <div className="text-2xl text-[#FFAB00] mb-2">
-                +{fund.aiForecastedROI.toFixed(1)}%
+                +{(fund.aiForecastedROI || 0).toFixed(1)}%
               </div>
               <div className="text-xs text-gray-400">
                 Powered by machine learning
@@ -100,7 +100,7 @@ export function EnhancedFundCard({ fund }: EnhancedFundCardProps) {
             </div>
             <div>
               <div className="text-xs text-gray-500">Expense</div>
-              <div className="text-sm text-white mt-1">{fund.technicalData.expenseRatio.toFixed(2)}%</div>
+              <div className="text-sm text-white mt-1">{(fund.technicalData?.expenseRatio || 0).toFixed(2)}%</div>
             </div>
           </div>
 

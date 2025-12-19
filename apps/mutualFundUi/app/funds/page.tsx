@@ -19,6 +19,7 @@ import { ErrorState } from '../components/ErrorBoundary';
 import type { FundRecommendation } from '../lib/api';
 import { useState as useStateReact, useEffect } from 'react';
 import axios from 'axios';
+import { FundChatbot } from '../components/FundChatbot';
 
 // Helper function to convert API data to component format
 const convertToFundData = (fund: any) => ({
@@ -143,9 +144,17 @@ export default function Funds() {
     );
   }
 
+  const handleChatbotRecommendations = (recommendations: any[]) => {
+    const convertedFunds = recommendations.map(convertToFundData);
+    setAllFunds(convertedFunds);
+    setSearchTerm(''); // Clear search to show all AI results
+    setFilterRisk('all'); // Clear filters to show all AI results
+  };
+
   return (
     <ProtectedPage>
       <div className="space-y-6">
+      <FundChatbot onFundsRecommended={handleChatbotRecommendations} />
       {/* Header */}
       <div>
         <h1 className="text-2xl text-white mb-2">AI-Recommended Funds for Your Profile</h1>
