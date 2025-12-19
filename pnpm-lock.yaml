@@ -373,9 +373,15 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@repo/prisma':
+        specifier: workspace:*
+        version: link:../../database/Prisma
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      '@repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10

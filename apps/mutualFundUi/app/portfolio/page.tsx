@@ -49,7 +49,7 @@ export default function Portfolio() {
     const totalInvested = investments.invested || 0;
     const currentValue = investments.current || 0;
     const returns = investments.totalReturnPercent || 0;
-    const activeFunds = orders?.filter(order => order.status === 'EXECUTED').length || 0;
+    const activeFunds = orders?.filter((order: any) => order.status === 'EXECUTED').length || 0;
 
     return [
       {
@@ -132,7 +132,7 @@ export default function Portfolio() {
                 </tr>
               </thead>
               <tbody>
-                {orders?.filter(order => order.status === 'EXECUTED').map((order, index) => {
+                {orders?.filter((order: any) => order.status === 'EXECUTED').map((order: any, index: number) => {
                   const invested = order.quantity * order.price;
                   const currentValue = invested * 1.05; // Mock 5% return
                   const returns = ((currentValue - invested) / invested) * 100;

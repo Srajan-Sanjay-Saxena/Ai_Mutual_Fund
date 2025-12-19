@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Home, TrendingUp, Wallet, Settings, User, BarChart3, Plus, LogOut, ChevronDown, ChevronRight } from 'lucide-react';
+import { Home, TrendingUp, Wallet, Settings, User, BarChart3, Plus, LogOut, ChevronDown, ChevronRight, Receipt } from 'lucide-react';
 import { useWallet } from '../hooks/useWallet';
 import { AddFundsModal } from './AddFundsModal';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -91,6 +91,12 @@ export function Navigation() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-[#1A2332] border-gray-700 text-white">
+                    <DropdownMenuItem asChild className="hover:bg-gray-800 cursor-pointer">
+                      <Link href="/transactions" className="flex items-center">
+                        <Receipt className="size-4 mr-2" />
+                        Transactions
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => signOut()} className="hover:bg-gray-800 cursor-pointer">
                       <LogOut className="size-4 mr-2" />
                       Sign Out
