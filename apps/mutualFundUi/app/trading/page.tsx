@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ProtectedPage } from '../components/ProtectedPage';
 import Link from 'next/link';
 
-import { useMarketIndices, useTrendingStocks, useMarketMovers, useUserInvestments, useHoldings, usePositions, useOrders, useWatchlist } from '../hooks/useTrading';
+import { useMarketIndices, useTrendingStocks, useMarketMovers, useUserInvestments, usePositions, useOrders, useWatchlist } from '../hooks/useTrading';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { TrendingUp, TrendingDown, ChevronRight, Activity, Wallet } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -38,12 +38,7 @@ export default function Trading() {
           >
             Explore
           </TabsTrigger>
-          <TabsTrigger
-            value="holdings"
-            className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#FFAB00] rounded-none px-6 py-3 text-gray-400 data-[state=active]:text-white"
-          >
-            Holdings
-          </TabsTrigger>
+
 
           <TabsTrigger
             value="orders"
@@ -62,9 +57,7 @@ export default function Trading() {
         <TabsContent value="explore" className="mt-6">
           <ExploreContent marketTab={marketTab} setMarketTab={setMarketTab} setActiveTab={setActiveTab} />
         </TabsContent>
-        <TabsContent value="holdings" className="mt-6">
-          <HoldingsContent />
-        </TabsContent>
+
 
         <TabsContent value="orders" className="mt-6">
           <OrdersContent />
@@ -311,70 +304,7 @@ function MarketMoversTable({ stocks }: { stocks: any[] }) {
   );
 }
 
-function HoldingsContent() {
-  const { holdings, loading } = useHoldings();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (!holdings.length) {
-    return (
-      <div className="bg-[#1A2332] border border-gray-800 rounded-lg p-12 text-center">
-        <Wallet className="size-16 text-gray-600 mx-auto mb-4" />
-        <h3 className="text-xl text-white mb-2">No Holdings Yet</h3>
-        <p className="text-gray-400 mb-6">Start investing to see your holdings here</p>
-        <Button 
-          className="bg-[#FFAB00] hover:bg-[#FF9800] text-black"
-          onClick={() => window.location.href = '/trading'}
-        >
-          Explore Stocks
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#1A2332] border border-gray-800 rounded-lg overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-[#0F1419]">
-          <tr>
-            <th className="text-left p-4 text-sm text-gray-400">Stock</th>
-            <th className="text-right p-4 text-sm text-gray-400">Qty</th>
-            <th className="text-right p-4 text-sm text-gray-400">Avg Price</th>
-            <th className="text-right p-4 text-sm text-gray-400">Current Price</th>
-            <th className="text-right p-4 text-sm text-gray-400">P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          {holdings.map((holding: any) => (
-            <tr key={holding.id} className="border-t border-gray-800 hover:bg-[#0F1419] transition-colors">
-              <td className="p-4">
-                <div className="text-white">{holding.name}</div>
-                <div className="text-xs text-gray-400">{holding.symbol}</div>
-              </td>
-              <td className="p-4 text-right text-white">{holding.quantity}</td>
-              <td className="p-4 text-right text-white">₹{holding.avgPrice.toFixed(2)}</td>
-              <td className="p-4 text-right text-white">₹{holding.currentPrice.toFixed(2)}</td>
-              <td className="p-4 text-right">
-                <div className={`${holding.pnl >= 0 ? 'text-[#00C853]' : 'text-red-500'}`}>
-                  {holding.pnl >= 0 ? '+' : ''}₹{holding.pnl.toFixed(2)}
-                </div>
-                <div className={`text-sm ${holding.pnlPercent >= 0 ? 'text-[#00C853]' : 'text-red-500'}`}>
-                  ({holding.pnlPercent >= 0 ? '+' : ''}{holding.pnlPercent.toFixed(2)}%)
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 
 
@@ -400,7 +330,7 @@ function OrdersContent() {
         <p className="text-gray-400 mb-6">Your buy and sell orders will be shown here</p>
         <Button 
           className="bg-[#FFAB00] hover:bg-[#FF9800] text-black"
-          onClick={() => alert('Order placement feature coming soon!')}
+          onClick={() => window.location.href = '/trading/all-funds'}
         >
           Place Order
         </Button>

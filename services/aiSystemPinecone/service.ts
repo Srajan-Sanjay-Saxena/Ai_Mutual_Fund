@@ -22,8 +22,8 @@ export async function getRecommendations(input: RecommendationInput): Promise<Fu
   });
 
   const index = pc.index(indexName);
-  // Pad embedding to match Pinecone index dimension (1536)
-  const embedding = [...result.embedding, ...new Array(1536 - result.embedding.length).fill(0)];
+  // Use embedding as-is for 768 dimension index
+  const embedding = result.embedding;
 
   const results = await index.query({
     vector: embedding,

@@ -12,7 +12,6 @@ router.get('/movers', tradingController.getMarketMovers);
 
 // User-specific trading routes
 router.get('/investments', tradingController.getUserInvestments);
-router.get('/holdings', tradingController.getHoldings);
 router.get('/positions', tradingController.getPositions);
 router.get('/orders', tradingController.getOrders);
 router.get('/watchlist', tradingController.getWatchlist);

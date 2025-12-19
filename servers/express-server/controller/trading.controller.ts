@@ -167,26 +167,6 @@ export const getUserInvestments = catchAsync(
   }
 );
 
-export const getHoldings = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req as ModifiedRequest).user.id;
-
-    const holdings = await prisma.holding.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const holdingsWithPnL = holdings.map((holding) => {
-      const pnl = (holding.currentPrice - holding.avgPrice) * holding.quantity;
-      const pnlPercent =
-        ((holding.currentPrice - holding.avgPrice) / holding.avgPrice) * 100;
-      return { ...holding, pnl, pnlPercent };
-    });
-
-    new OkResponseStrategy().handleResponse(res, holdingsWithPnL);
-  }
-);
-
 export const getPositions = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req as ModifiedRequest).user.id;
@@ -316,22 +296,7 @@ async function executeOrder(orderId: string, userId: string) {
       data: { balance: { decrement: totalAmount } },
     });
 
-    // Add to holdings
-    await prisma.holding.upsert({
-      where: { userId_symbol: { userId, symbol: order.symbol } },
-      update: {
-        quantity: { increment: order.quantity },
-        currentPrice: order.price,
-      },
-      create: {
-        userId,
-        symbol: order.symbol,
-        name: order.symbol,
-        quantity: order.quantity,
-        avgPrice: order.price,
-        currentPrice: order.price,
-      },
-    });
+    // Holdings removed - managed through investments model
 
     // Create transaction
     await prisma.transaction.create({
@@ -350,23 +315,7 @@ async function executeOrder(orderId: string, userId: string) {
       data: { balance: { increment: totalAmount } },
     });
 
-    // Update holdings
-    const holding = await prisma.holding.findUnique({
-      where: { userId_symbol: { userId, symbol: order.symbol } },
-    });
-
-    if (holding) {
-      if (holding.quantity <= order.quantity) {
-        await prisma.holding.delete({
-          where: { id: holding.id },
-        });
-      } else {
-        await prisma.holding.update({
-          where: { id: holding.id },
-          data: { quantity: { decrement: order.quantity } },
-        });
-      }
-    }
+    // Holdings removed - managed through investments model
 
     // Create transaction
     await prisma.transaction.create({

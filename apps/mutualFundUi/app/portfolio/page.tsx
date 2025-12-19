@@ -17,7 +17,18 @@ export default function Portfolio() {
   const { data: investments, isLoading } = useQuery({
     queryKey: ['portfolio'],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE}${API_ENDPOINT}/trading/holdings`, {
+      const response = await axios.get(`${API_BASE}${API_ENDPOINT}/trading/investments`, {
+        withCredentials: true
+      });
+      return response.data.data || {};
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const { data: orders } = useQuery({
+    queryKey: ['orders'],
+    queryFn: async () => {
+      const response = await axios.get(`${API_BASE}${API_ENDPOINT}/trading/orders`, {
         withCredentials: true
       });
       return response.data.data || [];
@@ -26,7 +37,7 @@ export default function Portfolio() {
   });
 
   const portfolioStats = React.useMemo(() => {
-    if (!investments?.length) {
+    if (!investments || (investments.invested || 0) === 0) {
       return [
         { label: 'Total Invested', value: '₹0', icon: Wallet, color: 'text-blue-400', bgColor: 'bg-blue-900/20' },
         { label: 'Current Value', value: '₹0', icon: TrendingUp, color: 'text-[#00C853]', bgColor: 'bg-green-900/20' },
@@ -35,9 +46,10 @@ export default function Portfolio() {
       ];
     }
 
-    const totalInvested = investments.reduce((sum: number, inv: any) => sum + (inv.quantity * inv.avgPrice), 0);
-    const currentValue = investments.reduce((sum: number, inv: any) => sum + (inv.quantity * inv.currentPrice), 0);
-    const returns = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested) * 100 : 0;
+    const totalInvested = investments.invested || 0;
+    const currentValue = investments.current || 0;
+    const returns = investments.totalReturnPercent || 0;
+    const activeFunds = orders?.filter(order => order.status === 'EXECUTED').length || 0;
 
     return [
       {
@@ -63,13 +75,13 @@ export default function Portfolio() {
       },
       {
         label: 'Active Funds',
-        value: investments.length.toString(),
+        value: activeFunds.toString(),
         icon: Clock,
         color: 'text-purple-400',
         bgColor: 'bg-purple-900/20',
       },
     ];
-  }, [investments]);
+  }, [investments, orders]);
 
   return (
     <ProtectedPage>
@@ -102,7 +114,7 @@ export default function Portfolio() {
           <div className="flex items-center justify-center p-12">
             <LoadingSpinner size="lg" />
           </div>
-        ) : !investments?.length ? (
+        ) : !investments || (investments.invested || 0) === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-400 text-lg mb-4">No investments yet</p>
             <p className="text-gray-500">Start investing to see your portfolio here</p>
@@ -120,17 +132,14 @@ export default function Portfolio() {
                 </tr>
               </thead>
               <tbody>
-                {investments.map((investment: any, index: number) => {
-                  const invested = investment.quantity * investment.avgPrice;
-                  const currentValue = investment.quantity * investment.currentPrice;
-                  const returns = invested > 0 ? ((currentValue - invested) / invested) * 100 : 0;
+                {orders?.filter(order => order.status === 'EXECUTED').map((order, index) => {
+                  const invested = order.quantity * order.price;
+                  const currentValue = invested * 1.05; // Mock 5% return
+                  const returns = ((currentValue - invested) / invested) * 100;
                   
                   return (
-                    <tr
-                      key={index}
-                      className="border-t border-gray-800 hover:bg-[#0F1419] transition-colors"
-                    >
-                      <td className="p-4 text-white">{investment.name || investment.symbol}</td>
+                    <tr key={index} className="border-t border-gray-800">
+                      <td className="p-4 text-white">{order.symbol}</td>
                       <td className="p-4 text-right text-gray-300">
                         ₹{invested.toLocaleString('en-IN')}
                       </td>
@@ -141,7 +150,7 @@ export default function Portfolio() {
                         {returns >= 0 ? '+' : ''}{returns.toFixed(1)}%
                       </td>
                       <td className="p-4 text-right text-gray-300">
-                        {investment.quantity.toFixed(2)}
+                        {order.quantity}
                       </td>
                     </tr>
                   );

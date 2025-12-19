@@ -8,7 +8,6 @@ model User {
   avatarURL                String?
   
   // Trading relations
-  holdings                  Holding[]
   positions                 Position[]
   orders                    Order[]
   watchlists                Watchlist[]
