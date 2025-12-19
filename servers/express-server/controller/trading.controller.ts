@@ -282,6 +282,19 @@ export const removeFromWatchlist = catchAsync(
   }
 );
 
+export const getTransactions = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = (req as ModifiedRequest).user.id;
+
+    const transactions = await prisma.transaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    new OkResponseStrategy().handleResponse(res, transactions);
+  }
+);
+
 // Helper function to execute orders
 async function executeOrder(orderId: string, userId: string) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });

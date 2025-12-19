@@ -106,6 +106,10 @@ export const tradingAPI = {
     const response = await apiClient.delete(`/trading/watchlist/${watchlistId}`);
     return response.data;
   },
+  getTransactions: async () => {
+    const response = await apiClient.get('/trading/transactions');
+    return response.data.data;
+  },
 };
 
 

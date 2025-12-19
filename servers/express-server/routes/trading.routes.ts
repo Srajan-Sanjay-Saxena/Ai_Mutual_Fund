@@ -14,6 +14,7 @@ router.get('/movers', tradingController.getMarketMovers);
 router.get('/investments', tradingController.getUserInvestments);
 router.get('/positions', tradingController.getPositions);
 router.get('/orders', tradingController.getOrders);
+router.get('/transactions', tradingController.getTransactions);
 router.get('/watchlist', tradingController.getWatchlist);
 // Trading actions
 router.post('/buyStock', tradingController.placeOrder);
