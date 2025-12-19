@@ -21,6 +21,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "WealthAI - AI-Powered Wealth Building",
   description: "AI-powered mutual fund recommendations and portfolio management",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

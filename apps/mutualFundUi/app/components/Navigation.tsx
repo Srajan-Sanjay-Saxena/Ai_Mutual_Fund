@@ -38,8 +38,8 @@ export function Navigation() {
       <header className="bg-[#1A2332] border-b border-gray-800 sticky top-0 z-50">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#FFAB00] to-[#FF6D00] rounded-lg flex items-center justify-center">
-              <TrendingUp className="size-6" />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+              <img src="/favicon.svg" alt="WealthAI Logo" className="w-10 h-10" />
             </div>
             <div>
               <h1 className="text-xl">WealthAI</h1>
